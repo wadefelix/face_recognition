@@ -1,6 +1,11 @@
+ARG BASEIMAGE=python:3.9-slim-buster
 # Builder Image
-FROM python:3.8-slim-buster AS compile
+FROM ${BASEIMAGE} AS compile
 
+RUN sed -i "s#deb.debian.org#mirrors.tuna.tsinghua.edu.cn#g" /etc/apt/sources.list \
+ && sed -i "s#security.debian.org#mirrors.tuna.tsinghua.edu.cn#g" /etc/apt/sources.list
+
+ENV DEBIAN_FRONTEND noninteractive
 # Install Dependencies
 RUN apt-get -y update && apt-get install -y --fix-missing \
     build-essential \
@@ -41,7 +46,7 @@ RUN pip3 install face_recognition
 
 
 # Runtime Image
-FROM python:3.8-slim-buster
+FROM ${BASEIMAGE}
 
 COPY --from=compile /opt/venv /opt/venv
 COPY --from=compile \
